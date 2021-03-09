@@ -2,10 +2,12 @@ require 'rack'
 require_relative '../lib/controller_base'
 
 class MyController < ControllerBase
-  def initialize(req, res, already_built_response)
+  #attr_reader(:req,:res, :already_built_response)
+
+  def initialize(req, res)
     @req = req
     @res = res
-    @already_built_response = @already_built_response
+    @already_built_response = nil
   end
 
   def go
@@ -16,10 +18,38 @@ class MyController < ControllerBase
     end
   end
 
+  #set response body and content_type to parameters
   def render_content(content, content_type)
+    count = 0
+     
+    res = Rack::Response.new()
+
+    @res.write(content)
+    res["Content-Type"] = content_type
+
+    if @res.write 
+      count+= 1
+    end
+
+    if count > 1
+     return @already_built_response = raise "Double render error"
+    end
+
   end
 
-  def def redirect_to(url)
+  def redirect_to(url)
+      count = 0
+
+      @res.location = url
+      @res.status = 302
+
+      if @res.location
+        count+= 1
+      end
+
+      if count > 1
+        return @already_built_response = raise "Double render error"
+      end
   end
   
 end
